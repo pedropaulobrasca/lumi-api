@@ -14,7 +14,9 @@ import { redisStore } from 'cache-manager-redis-store';
       password: process.env.DB_PASSWORD ?? 'secret',
       database: process.env.DB_NAME ?? 'energy_invoices',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: false, // Desativado para usar migrações
+      migrationsRun: true, // Executa migrações automaticamente
+      migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
     }),
     CacheModule.registerAsync({
       isGlobal: true,

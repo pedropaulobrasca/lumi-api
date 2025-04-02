@@ -1,98 +1,196 @@
+# 🌟 Lumi API - Sistema de Gerenciamento de Faturas de Energia
+
+<div align="center">
+  <img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" />
+  <br>
+  <h3>API para processamento e análise de faturas de energia elétrica</h3>
+</div>
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <a href="#-sobre-o-projeto">Sobre</a> •
+  <a href="#-funcionalidades">Funcionalidades</a> •
+  <a href="#-tecnologias">Tecnologias</a> •
+  <a href="#-requisitos">Requisitos</a> •
+  <a href="#-instalação">Instalação</a> •
+  <a href="#-configuração">Configuração</a> •
+  <a href="#-executando-o-projeto">Executando</a> •
+  <a href="#-migrações">Migrações</a> •
+  <a href="#-documentação-da-api">Documentação</a> •
+  <a href="#-estrutura-do-projeto">Estrutura</a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 📋 Sobre o Projeto
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+O Lumi API é um sistema desenvolvido para processar e analisar faturas de energia elétrica. A aplicação permite o upload de faturas em PDF, extrai automaticamente os dados relevantes e calcula métricas importantes como consumo de energia, economia com geração distribuída (GD) e valores totais.
+
+Este projeto foi desenvolvido com NestJS, um framework progressivo para construção de aplicações server-side eficientes e escaláveis em Node.js.
+
+## ✨ Funcionalidades
+
+- 📄 **Upload de Faturas**: Processamento de faturas de energia em formato PDF
+- 🔍 **Extração de Dados**: Identificação automática de informações como consumo, valores e referência
+- 📊 **Cálculos Automáticos**: Cálculo de métricas como economia com GD e valor total
+- 🗄️ **Armazenamento**: Persistência dos dados em banco PostgreSQL
+- 🔄 **Consultas**: API RESTful para consulta e listagem de faturas processadas
+- 📱 **Documentação**: Interface Swagger para testes e documentação da API
+
+## 🚀 Tecnologias
+
+O projeto utiliza as seguintes tecnologias:
+
+- [NestJS](https://nestjs.com/) - Framework Node.js
+- [TypeORM](https://typeorm.io/) - ORM para banco de dados
+- [PostgreSQL](https://www.postgresql.org/) - Banco de dados relacional
+- [Redis](https://redis.io/) - Cache de dados
+- [Swagger](https://swagger.io/) - Documentação da API
+- [Docker](https://www.docker.com/) - Containerização
+- [PDF Parse](https://www.npmjs.com/package/pdf-parse) - Processamento de arquivos PDF
+
+## 📋 Requisitos
+
+Antes de começar, você precisará ter instalado em sua máquina:
+
+- [Node.js](https://nodejs.org/en/) (v18 ou superior)
+- [PNPM](https://pnpm.io/) (v8 ou superior)
+- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) (para ambiente containerizado)
+- [PostgreSQL](https://www.postgresql.org/) (opcional, se não usar Docker)
+
+## 🔧 Instalação
+
+Clone o repositório e instale as dependências:
+
+```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/lumi-api.git
+cd lumi-api
+
+# Instale as dependências
+pnpm install
+```
+
+## ⚙️ Configuração
+
+### Variáveis de Ambiente
+
+O projeto utiliza as seguintes variáveis de ambiente (com valores padrão):
+
+| Variável       | Valor Padrão      | Descrição                       |
+|----------------|-------------------|----------------------------------|
+| DB_HOST        | localhost         | Host do banco de dados          |
+| DB_PORT        | 5432              | Porta do banco de dados         |
+| DB_USER        | postgres          | Usuário do banco de dados       |
+| DB_PASSWORD    | secret            | Senha do banco de dados         |
+| DB_NAME        | energy_invoices   | Nome do banco de dados          |
+| REDIS_HOST     | localhost         | Host do Redis                   |
+| REDIS_PORT     | 6379              | Porta do Redis                  |
+| PORT           | 3000              | Porta da aplicação              |
+
+## 🚀 Executando o Projeto
+
+### Ambiente de Desenvolvimento
+
+Para executar o projeto em ambiente de desenvolvimento:
+
+```bash
+# Iniciar PostgreSQL e Redis em containers
+docker-compose -f docker-compose.dev.yml up -d
+
+# Executar migrações do banco de dados
+pnpm typeorm migration:run -d src/config/typeorm.config.ts
+
+# Iniciar a aplicação em modo de desenvolvimento
+pnpm start:dev
+```
+
+A aplicação estará disponível em: http://localhost:3000
+
+### Ambiente de Produção
+
+Para executar o projeto em ambiente de produção:
+
+```bash
+# Construir e iniciar todos os serviços
+docker-compose up -d
+
+# Ver logs da aplicação
+docker-compose logs -f app
+```
+
+## 🔄 Migrações
+
+O projeto utiliza TypeORM para gerenciar migrações do banco de dados:
+
+```bash
+# Executar migrações pendentes
+pnpm typeorm migration:run -d src/config/typeorm.config.ts
+
+# Reverter última migração
+pnpm typeorm migration:revert -d src/config/typeorm.config.ts
+
+# Criar nova migração
+pnpm typeorm migration:create src/migrations/NomeDaMigracao
+```
+
+## 📖 Documentação da API
+
+A documentação da API está disponível através do Swagger UI:
+
+```
+http://localhost:3000/api
+```
+
+### Endpoints Principais
+
+| Método | Rota               | Descrição                                |
+|--------|--------------------|-----------------------------------------|
+| POST   | /invoices/upload   | Upload de uma fatura em PDF              |
+| GET    | /invoices          | Listar todas as faturas processadas      |
+| GET    | /invoices/:id      | Buscar uma fatura específica pelo ID     |
+
+## 📁 Estrutura do Projeto
+
+```
+lumi-api/
+├── src/
+│   ├── config/             # Configurações da aplicação
+│   ├── invoice/            # Módulo de faturas
+│   │   ├── dto/            # Objetos de transferência de dados
+│   │   ├── entities/       # Entidades do banco de dados
+│   │   ├── invoice.controller.ts
+│   │   ├── invoice.module.ts
+│   │   └── invoice.service.ts
+│   ├── migrations/         # Migrações do banco de dados
+│   ├── parser/             # Serviço de processamento de PDF
+│   ├── app.module.ts       # Módulo principal da aplicação
+│   └── main.ts             # Ponto de entrada da aplicação
+├── test/                   # Testes automatizados
+├── docker-compose.yml      # Configuração Docker para produção
+├── docker-compose.dev.yml  # Configuração Docker para desenvolvimento
+├── Dockerfile              # Configuração de build do container
+└── package.json            # Dependências e scripts
+```
+
+## 🧪 Testes
+
+Para executar os testes:
+
+```bash
+# Testes unitários
+pnpm test
+
+# Testes e2e
+pnpm test:e2e
+
+# Cobertura de testes
+pnpm test:cov
+```
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+<p align="center">
+  Desenvolvido com ❤️ para a Lumi
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
