@@ -16,7 +16,8 @@
   <a href="#-executando-o-projeto">Executando</a> •
   <a href="#-migrações">Migrações</a> •
   <a href="#-documentação-da-api">Documentação</a> •
-  <a href="#-estrutura-do-projeto">Estrutura</a>
+  <a href="#-estrutura-do-projeto">Estrutura</a> •
+  <a href="#-rotas-da-api">Rotas da API</a>
 </p>
 
 ## 📋 Sobre o Projeto
@@ -33,6 +34,11 @@ Este projeto foi desenvolvido com NestJS, um framework progressivo para constru�
 - 🗄️ **Armazenamento**: Persistência dos dados em banco PostgreSQL
 - 🔄 **Consultas**: API RESTful para consulta e listagem de faturas processadas
 - 📱 **Documentação**: Interface Swagger para testes e documentação da API
+- 🔍 **Filtragem Avançada**: Busca de faturas por cliente e período de referência
+- 📋 **Listagem de Meses**: Endpoint para listar todos os meses de referência disponíveis
+- 👥 **Listagem de Clientes**: Endpoint para listar todos os clientes cadastrados
+- 🛡️ **Validação de Duplicidade**: Sistema para evitar cadastros duplicados de faturas
+- ⚠️ **Tratamento de Erros**: Mensagens de erro claras e específicas
 
 ## 🚀 Tecnologias
 
@@ -42,6 +48,7 @@ O projeto utiliza as seguintes tecnologias:
 - [TypeORM](https://typeorm.io/) - ORM para banco de dados
 - [PostgreSQL](https://www.postgresql.org/) - Banco de dados relacional
 - [Redis](https://redis.io/) - Cache de dados
+- [TypeScript](https://www.typescriptlang.org/) - Superset tipado de JavaScript
 - [Swagger](https://swagger.io/) - Documentação da API
 - [Docker](https://www.docker.com/) - Containerização
 - [PDF Parse](https://www.npmjs.com/package/pdf-parse) - Processamento de arquivos PDF
@@ -96,7 +103,7 @@ Para executar o projeto em ambiente de desenvolvimento:
 docker-compose -f docker-compose.dev.yml up -d
 
 # Executar migrações do banco de dados
-pnpm typeorm migration:run -d src/config/typeorm.config.ts
+pnpm dlx typeorm-ts-node-commonjs migration:run -d src/config/typeorm.config.ts
 
 # Iniciar a aplicação em modo de desenvolvimento
 pnpm start:dev
@@ -122,16 +129,45 @@ O projeto utiliza TypeORM para gerenciar migrações do banco de dados:
 
 ```bash
 # Executar migrações pendentes
-pnpm typeorm migration:run -d src/config/typeorm.config.ts
+pnpm dlx typeorm-ts-node-commonjs migration:run -d src/config/typeorm.config.ts
 
 # Reverter última migração
-pnpm typeorm migration:revert -d src/config/typeorm.config.ts
+pnpm dlx typeorm-ts-node-commonjs migration:revert -d src/config/typeorm.config.ts
 
 # Criar nova migração
-pnpm typeorm migration:create src/migrations/NomeDaMigracao
+pnpm dlx typeorm-ts-node-commonjs migration:create src/migrations/NomeDaMigracao
 ```
 
 ## 📖 Documentação da API
+
+A documentação completa da API está disponível através da interface Swagger após iniciar o servidor:
+
+```
+http://localhost:3000/api/docs
+```
+
+## 🔗 Rotas da API
+
+A API oferece as seguintes rotas principais:
+
+### Faturas
+
+- `GET /invoices` - Lista todas as faturas com suporte a filtros
+  - Parâmetros de consulta:
+    - `clientNumber` - Filtra faturas por número do cliente
+    - `startMonth` - Filtra faturas a partir de um mês de referência
+    - `endMonth` - Filtra faturas até um mês de referência
+
+- `GET /invoices/:id` - Obtém detalhes de uma fatura específica
+
+- `POST /invoices/upload` - Faz upload e processa uma nova fatura
+  - Corpo: `multipart/form-data` com campo `file` contendo o arquivo PDF da fatura
+
+- `GET /invoices/reference-months/list` - Lista todos os meses de referência disponíveis
+  - Retorna um array de strings com os meses de referência ordenados do mais recente para o mais antigo
+
+- `GET /invoices/clients/list` - Lista todos os clientes cadastrados
+  - Retorna um array de objetos contendo `clientNumber` e `installationNumber` ordenados por número do cliente
 
 A documentação da API está disponível através do Swagger UI:
 
@@ -177,12 +213,6 @@ Para executar os testes:
 ```bash
 # Testes unitários
 pnpm test
-
-# Testes e2e
-pnpm test:e2e
-
-# Cobertura de testes
-pnpm test:cov
 ```
 
 ## 📝 Licença
