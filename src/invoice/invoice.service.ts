@@ -22,6 +22,22 @@ export class InvoiceService {
   async processInvoice(pdfBuffer: Buffer): Promise<Invoice> {
     const parsedData = await this.pdfParser.parseInvoice(pdfBuffer);
 
+    // Verificar se já existe uma fatura com o mesmo número de cliente, instalação e mês de referência
+    const existingInvoice = await this.invoiceRepository.findOne({
+      where: {
+        clientNumber: parsedData.clientNumber,
+        installationNumber: parsedData.installationNumber,
+        referenceMonth: parsedData.referenceMonth
+      }
+    });
+
+    if (existingInvoice) {
+      const error: any = new Error('Fatura duplicada');
+      error.status = 409;
+      error.message = `Já existe uma fatura para o cliente ${parsedData.clientNumber}, instalação ${parsedData.installationNumber} no mês ${parsedData.referenceMonth}`;
+      throw error;
+    }
+
     // Calculate the variables of interest
     const calculations = this.calculateVariablesOfInterest(parsedData);
 
@@ -89,8 +105,52 @@ export class InvoiceService {
     };
   }
 
-  async findAll(): Promise<Invoice[]> {
-    return this.invoiceRepository.find();
+  async findAll(clientNumber?: string, startMonth?: string, endMonth?: string): Promise<Invoice[]> {
+    // Construir a query base
+    const queryBuilder = this.invoiceRepository.createQueryBuilder('invoice');
+    
+    // Aplicar filtro por número do cliente se fornecido
+    if (clientNumber) {
+      queryBuilder.andWhere('invoice.clientNumber = :clientNumber', { clientNumber });
+    }
+    
+    // Aplicar filtro por período se fornecido
+    if (startMonth && endMonth) {
+      // Convertendo os meses para um formato comparável (assumindo formato MMM/YYYY)
+      queryBuilder.andWhere(
+        'invoice.referenceMonth BETWEEN :startMonth AND :endMonth',
+        { startMonth, endMonth }
+      );
+    } else if (startMonth) {
+      queryBuilder.andWhere('invoice.referenceMonth >= :startMonth', { startMonth });
+    } else if (endMonth) {
+      queryBuilder.andWhere('invoice.referenceMonth <= :endMonth', { endMonth });
+    }
+    
+    // Ordenar por mês de referência (do mais recente para o mais antigo)
+    queryBuilder.orderBy('invoice.referenceMonth', 'DESC');
+    
+    // Buscar as faturas
+    const invoices = await queryBuilder.getMany();
+    
+    // Converter os valores de string para número
+    return invoices.map(invoice => ({
+      ...invoice,
+      // Converter campos numéricos
+      totalAmount: this.toNumber(invoice.totalAmount),
+      electricityConsumption: this.toNumber(invoice.electricityConsumption),
+      electricityValue: this.toNumber(invoice.electricityValue),
+      sceeConsumption: this.toNumber(invoice.sceeConsumption),
+      sceeValue: this.toNumber(invoice.sceeValue),
+      compensatedEnergyConsumption: this.toNumber(invoice.compensatedEnergyConsumption),
+      compensatedEnergyValue: this.toNumber(invoice.compensatedEnergyValue),
+      publicLightingContribution: this.toNumber(invoice.publicLightingContribution),
+      totalEnergyConsumption: this.toNumber(invoice.totalEnergyConsumption),
+      totalValueWithoutGD: this.toNumber(invoice.totalValueWithoutGD),
+      gdSavings: this.toNumber(invoice.gdSavings),
+      energyConsumption: this.toNumber(invoice.energyConsumption),
+      compensatedEnergy: this.toNumber(invoice.compensatedEnergy),
+    }));
   }
 
   async findOne(id: string): Promise<Invoice> {
@@ -100,6 +160,79 @@ export class InvoiceService {
       throw new NotFoundException(`Invoice with ID ${id} not found`);
     }
 
-    return invoice;
+    // Converter os valores de string para número
+    return {
+      ...invoice,
+      // Converter campos numéricos
+      totalAmount: this.toNumber(invoice.totalAmount),
+      electricityConsumption: this.toNumber(invoice.electricityConsumption),
+      electricityValue: this.toNumber(invoice.electricityValue),
+      sceeConsumption: this.toNumber(invoice.sceeConsumption),
+      sceeValue: this.toNumber(invoice.sceeValue),
+      compensatedEnergyConsumption: this.toNumber(invoice.compensatedEnergyConsumption),
+      compensatedEnergyValue: this.toNumber(invoice.compensatedEnergyValue),
+      publicLightingContribution: this.toNumber(invoice.publicLightingContribution),
+      totalEnergyConsumption: this.toNumber(invoice.totalEnergyConsumption),
+      totalValueWithoutGD: this.toNumber(invoice.totalValueWithoutGD),
+      gdSavings: this.toNumber(invoice.gdSavings),
+      energyConsumption: this.toNumber(invoice.energyConsumption),
+      compensatedEnergy: this.toNumber(invoice.compensatedEnergy),
+    };
+  }
+  
+  // Método auxiliar para converter valores para número
+  private toNumber(value: any): number {
+    if (value === null || value === undefined) {
+      return 0;
+    }
+    
+    // Se já for um número, retorna o valor
+    if (typeof value === 'number') {
+      return value;
+    }
+    
+    // Se for uma string, converte para número
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    
+    return 0;
+  }
+
+  /**
+   * Retorna a lista de todos os meses de referência disponíveis
+   */
+  async getReferenceMonths(): Promise<string[]> {
+    // Buscar meses de referência únicos e ordenar por data (mais recente primeiro)
+    const result = await this.invoiceRepository
+      .createQueryBuilder('invoice')
+      .select('invoice.referenceMonth', 'referenceMonth')
+      .distinct(true)
+      .orderBy('invoice.referenceMonth', 'DESC')
+      .getRawMany();
+    
+    // Extrair os meses de referência do resultado
+    return result.map(item => item.referenceMonth);
+  }
+
+  /**
+   * Retorna a lista de todos os clientes disponíveis
+   */
+  async getClients(): Promise<{clientNumber: string, installationNumber: string}[]> {
+    // Buscar clientes únicos
+    const result = await this.invoiceRepository
+      .createQueryBuilder('invoice')
+      .select('invoice.clientNumber', 'clientNumber')
+      .addSelect('invoice.installationNumber', 'installationNumber')
+      .distinct(true)
+      .orderBy('invoice.clientNumber', 'ASC')
+      .getRawMany();
+    
+    // Extrair os números de cliente do resultado
+    return result.map(item => ({
+      clientNumber: item.clientNumber,
+      installationNumber: item.installationNumber
+    }));
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, UploadedFile, UseInterceptors, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseInterceptors, Get, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InvoiceService } from './invoice.service';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiResponse, ApiParam } from '@nestjs/swagger';
@@ -20,10 +20,33 @@ export class InvoiceController {
     type: UploadInvoiceResponseDto
   })
   @ApiResponse({ status: 400, description: 'Requisição inválida' })
+  @ApiResponse({ status: 409, description: 'Fatura duplicada' })
   @ApiResponse({ status: 500, description: 'Erro interno do servidor' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadInvoice(@UploadedFile() file: Express.Multer.File) {
-    return this.invoiceService.processInvoice(file.buffer);
+    try {
+      const result = await this.invoiceService.processInvoice(file.buffer);
+      return {
+        id: result.id,
+        message: 'Fatura processada com sucesso'
+      };
+    } catch (error) {
+      // Se for um erro de fatura duplicada
+      if (error.status === 409) {
+        throw new HttpException({
+          status: HttpStatus.CONFLICT,
+          message: error.message,
+          error: 'Fatura duplicada'
+        }, HttpStatus.CONFLICT);
+      }
+      
+      // Outros erros
+      throw new HttpException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro ao processar a fatura',
+        error: error.message || 'Erro interno do servidor'
+      }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get()
@@ -33,8 +56,34 @@ export class InvoiceController {
     description: 'Lista de faturas retornada com sucesso',
     type: [InvoiceResponseDto]
   })
-  async findAll() {
-    return this.invoiceService.findAll();
+  async findAll(
+    @Query('clientNumber') clientNumber?: string,
+    @Query('startMonth') startMonth?: string,
+    @Query('endMonth') endMonth?: string,
+  ) {
+    return this.invoiceService.findAll(clientNumber, startMonth, endMonth);
+  }
+
+  @Get('reference-months/list')
+  @ApiOperation({ summary: 'Listar todos os meses de referência disponíveis' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de meses de referência retornada com sucesso',
+    type: [String]
+  })
+  async getReferenceMonths() {
+    return this.invoiceService.getReferenceMonths();
+  }
+
+  @Get('clients/list')
+  @ApiOperation({ summary: 'Listar todos os clientes disponíveis' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de clientes retornada com sucesso',
+    type: [String]
+  })
+  async getClients() {
+    return this.invoiceService.getClients();
   }
 
   @Get(':id')
