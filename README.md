@@ -156,7 +156,6 @@ A API oferece as seguintes rotas principais:
   - Parâmetros de consulta:
     - `clientNumber` - Filtra faturas por número do cliente
     - `startMonth` - Filtra faturas a partir de um mês de referência
-    - `endMonth` - Filtra faturas até um mês de referência
 
 - `GET /invoices/:id` - Obtém detalhes de uma fatura específica
 

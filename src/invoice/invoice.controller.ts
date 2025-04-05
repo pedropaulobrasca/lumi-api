@@ -1,7 +1,7 @@
 import { Controller, Post, UploadedFile, UseInterceptors, Get, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InvoiceService } from './invoice.service';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { UploadInvoiceDto } from './dto/upload-invoice.dto';
 import { UploadInvoiceResponseDto, InvoiceResponseDto } from './dto/invoice.dto';
 
@@ -39,7 +39,7 @@ export class InvoiceController {
           error: 'Fatura duplicada'
         }, HttpStatus.CONFLICT);
       }
-      
+
       // Outros erros
       throw new HttpException({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -56,12 +56,19 @@ export class InvoiceController {
     description: 'Lista de faturas retornada com sucesso',
     type: [InvoiceResponseDto]
   })
+  @ApiQuery({
+    name: 'clientNumber',
+    required: false
+  })
+  @ApiQuery({
+    name: 'startMonth',
+    required: false
+  })
   async findAll(
     @Query('clientNumber') clientNumber?: string,
     @Query('startMonth') startMonth?: string,
-    @Query('endMonth') endMonth?: string,
   ) {
-    return this.invoiceService.findAll(clientNumber, startMonth, endMonth);
+    return this.invoiceService.findAll(clientNumber, startMonth);
   }
 
   @Get('reference-months/list')
