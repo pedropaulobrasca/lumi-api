@@ -73,6 +73,9 @@ cd lumi-api
 
 # Instale as dependências
 pnpm install
+
+# Rode o docker compose
+docker compose up -d
 ```
 
 ## ⚙️ Configuração
