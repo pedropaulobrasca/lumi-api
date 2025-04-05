@@ -215,6 +215,9 @@ Para executar os testes:
 ```bash
 # Testes unitários
 pnpm test
+
+# Testes e2e
+pnpm test:e2e
 ```
 
 ## 📝 Licença
